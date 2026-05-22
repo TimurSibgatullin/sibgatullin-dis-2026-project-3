@@ -1,0 +1,52 @@
+### 1. OpenAPI / Swagger
+GET http://localhost:8080/swagger-ui.html
+
+### 2. Регистрация
+POST http://localhost:8080/auth/register
+Content-Type: application/x-www-form-urlencoded
+
+login=testuser&password=Test12345&passwordConfirm=Test12345&role=author&nickname=TestAuthor&description=Hello
+
+### 3. Логин (после выполнения скопируй куки ACCESS_TOKEN и REFRESH_TOKEN)
+POST http://localhost:8080/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+login=admin&password=HulTi55iYB}g+yXU
+
+### 4. REST API: получить книги с пагинацией
+GET http://localhost:8080/api/v1/books?page=0&size=5&sort=title,asc
+Cookie: ACCESS_TOKEN=вставь_сюда_токен
+
+### 5. REST API: поиск книг
+GET http://localhost:8080/api/v1/books?title=война&page=0&size=10
+Cookie: ACCESS_TOKEN=вставь_сюда_токен
+
+### 6. AI: генерация описания
+POST http://localhost:8080/api/v1/ai/generate-description
+Content-Type: application/json
+Cookie: ACCESS_TOKEN=вставь_сюда_токен
+
+{
+  "title": "Мастер и Маргарита",
+  "author": "Михаил Булгаков",
+  "genres": ["Роман", "Мистика", "Сатира"]
+}
+
+### 7. AI: улучшение описания
+POST http://localhost:8080/api/v1/ai/improve-description
+Content-Type: application/json
+Cookie: ACCESS_TOKEN=вставь_сюда_токен
+
+{
+  "existingDesc": "Какая-то книга про Москву.",
+  "title": "Мастер и Маргарита",
+  "author": "Михаил Булгаков"
+}
+
+### 8. Избранное: добавить
+POST http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN=вставь_сюда_токен
+
+### 9. Избранное: удалить
+DELETE http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN=вставь_сюда_токен

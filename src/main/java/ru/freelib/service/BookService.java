@@ -1,0 +1,147 @@
+package ru.freelib.service;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import ru.freelib.model.entity.Author;
+import ru.freelib.model.entity.Book;
+import ru.freelib.model.entity.Genre;
+import ru.freelib.model.form.BookForm;
+import ru.freelib.repository.AuthorRepository;
+import ru.freelib.repository.BookRepository;
+import ru.freelib.repository.GenreRepository;
+import ru.freelib.util.FileStorageUtil;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class BookService {
+
+    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
+    private final AiDescriptionService aiDescriptionService;
+    private final RecommendationService recommendationService;
+    private final FileStorageUtil fileStorage;
+
+    @Transactional
+    public Book createBook(BookForm form, MultipartFile file, Long authorId) {
+        Author author = authorRepository.findById(authorId)
+                .orElseThrow(() -> new EntityNotFoundException("Автор не найден"));
+
+        Set<Genre> genres = resolveGenres(form.getGenreIds());
+        String filePath = fileStorage.store(file);
+
+        Book book = Book.builder()
+                .title(form.getTitle().trim())
+                .description(form.getDescription() != null ? form.getDescription().trim() : null)
+                .filePath(filePath)
+                .author(author)
+                .genres(genres)
+                .views(0L)
+                .build();
+
+        Book saved = bookRepository.save(book);
+        scheduleEmbeddingUpdate(saved);
+        return saved;
+    }
+
+    @Transactional
+    public Book updateBook(Long bookId, BookForm form, MultipartFile file) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+
+        book.setTitle(form.getTitle().trim());
+        book.setDescription(form.getDescription() != null ? form.getDescription().trim() : null);
+
+        if (file != null && !file.isEmpty()) {
+            fileStorage.delete(book.getFilePath());
+            book.setFilePath(fileStorage.store(file));
+        }
+
+        book.setGenres(resolveGenres(form.getGenreIds()));
+        Book updated = bookRepository.save(book);
+        scheduleEmbeddingUpdate(updated);
+        return updated;
+    }
+
+    @Transactional
+    public void deleteBook(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+        fileStorage.delete(book.getFilePath());
+        bookRepository.delete(book);
+    }
+
+    public Book getById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+    }
+
+    public List<Book> findByAuthorId(Long authorId) {
+        return bookRepository.findByAuthorId(authorId);
+    }
+
+    public String generateAiDescription(String title, String authorName, List<String> genres) {
+        return aiDescriptionService.generateDescription(title, authorName, genres);
+    }
+
+    @Transactional
+    public String improveDescription(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+
+        String improved = aiDescriptionService.improveDescription(
+                book.getDescription(), book.getTitle(), book.getAuthor().getNickname());
+
+        book.setDescription(improved);
+        bookRepository.save(book);
+        scheduleEmbeddingUpdate(book);
+        return improved;
+    }
+
+    private Set<Genre> resolveGenres(List<Long> genreIds) {
+        if (genreIds == null || genreIds.isEmpty()) {
+            throw new IllegalArgumentException("Необходимо выбрать хотя бы один жанр");
+        }
+        Set<Genre> genres = genreRepository.findAllById(genreIds).stream().collect(Collectors.toSet());
+        if (genres.size() != genreIds.size()) {
+            throw new IllegalArgumentException("Некоторые жанры не найдены");
+        }
+        return genres;
+    }
+
+    private void scheduleEmbeddingUpdate(Book book) {
+        try {
+            List<String> genreNames = book.getGenres().stream()
+                    .map(Genre::getName)
+                    .collect(Collectors.toList());
+            recommendationService.updateBookEmbedding(
+                    book.getId(), book.getTitle(), book.getAuthor().getNickname(),
+                    book.getDescription(), genreNames);
+        } catch (Exception e) {
+            log.warn("Не удалось обновить эмбеддинг для книги {}: {}", book.getId(), e.getMessage());
+        }
+    }
+
+    public List<Book> findAll() {
+        return bookRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    public List<Book> getByGenreId(Long genreId) {
+        return bookRepository.findByDynamicFilters(null, null, List.of(genreId), null, null);
+    }
+
+    public List<Book> search(String title, Long authorId, List<Long> genreIds) {
+        return bookRepository.findByDynamicFilters(title, authorId, genreIds, null, null);
+    }
+}
