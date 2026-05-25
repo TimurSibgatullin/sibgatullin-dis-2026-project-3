@@ -1,6 +1,7 @@
 package ru.freelib.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -10,12 +11,13 @@ import ru.freelib.config.AiClientConfig;
 import ru.freelib.exception.AiServiceException;
 import ru.freelib.model.dto.ai.AiEmbeddingRequest;
 import ru.freelib.model.dto.ai.AiEmbeddingResponse;
+import ru.freelib.model.entity.Book;
 import ru.freelib.repository.BookRepository;
 import ru.freelib.util.PromptSanitizer;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,8 +67,30 @@ public class RecommendationService {
         bookRepository.updateEmbeddingVector(bookId, vector);
     }
 
-    public List<Long> findSimilarBookIds(Long excludeBookId, float[] queryVector, int limit) {
+    public List<Book> findSimilarBooks(Long excludeBookId, int limit) {
+        Book sourceBook = bookRepository.findById(excludeBookId)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена: " + excludeBookId));
+
+        float[] queryVector = sourceBook.getEmbeddingVector();
+        if (queryVector == null) {
+            return Collections.emptyList();
+        }
+
         String vectorString = Arrays.toString(queryVector).replace(" ", "");
-        return bookRepository.findSimilarIds(excludeBookId, vectorString, limit);
+        List<Long> similarIds = bookRepository.findSimilarIds(excludeBookId, vectorString, limit);
+
+        if (similarIds == null || similarIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Book> books = bookRepository.findAllById(similarIds);
+
+        Map<Long, Book> byId = books.stream()
+                .collect(Collectors.toMap(Book::getId, b -> b));
+
+        return similarIds.stream()
+                .map(byId::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

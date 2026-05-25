@@ -38,4 +38,32 @@
     <#else>
         <p><a href="${currentContext}/auth/login">Войдите</a>, чтобы оставить комментарий.</p>
     </#if>
+
+    <#if similarBooks?? && (similarBooks?size > 0)>
+        <p>
+            <h3>Вас могут заинтересовать:</h3>
+            <ul>
+                <#list similarBooks as similar>
+                    <li>
+                        <a href="${currentContext}/book?id=${similar.id}">
+                            <b>${similar.title}</b>
+                        </a>
+                        <#if similar.author??>
+                            — <a href="${currentContext}/author/${similar.author.id}">${similar.author.nickname}</a>
+                        </#if>
+                        <#if similar.description?? && (similar.description?length > 0)>
+                            <br>
+                            <small style="color: #666;">
+                                <#if similar.description?length gt 150>
+                                    ${similar.description[0..150]}...
+                                <#else>
+                                    ${similar.description}
+                                </#if>
+                            </small>
+                        </#if>
+                    </li>
+                </#list>
+            </ul>
+        </p>
+    </#if>
 </@base.layout>

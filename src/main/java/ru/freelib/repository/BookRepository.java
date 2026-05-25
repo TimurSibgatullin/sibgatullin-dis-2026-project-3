@@ -25,6 +25,6 @@ public interface BookRepository extends JpaRepository<Book, Long>, BookRepositor
             LIMIT :limit
             """, nativeQuery = true)
     List<Long> findSimilarIds(@Param("excludeId") Long excludeId,
-                              @Param("vector") String vector, // Теперь это String
+                              @Param("vector") String vector,
                               @Param("limit") int limit);
 }

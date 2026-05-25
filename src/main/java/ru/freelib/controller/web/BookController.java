@@ -9,16 +9,16 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.freelib.model.entity.Book;
 import ru.freelib.security.CustomUserDetails;
-import ru.freelib.service.BookService;
-import ru.freelib.service.CommentService;
-import ru.freelib.service.FavoriteService;
-import ru.freelib.service.GenreService;
+import ru.freelib.service.*;
 import ru.freelib.util.FileStorageUtil;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +29,7 @@ public class BookController {
     private final CommentService commentService;
     private final FavoriteService favoriteService;
     private final FileStorageUtil fileStorage;
+    private final RecommendationService recommendationService;
 
     @GetMapping("/book")
     public String viewBook(@RequestParam Long id,
@@ -39,6 +40,13 @@ public class BookController {
         if (user != null) {
             model.addAttribute("isFavorite", favoriteService.exists(user.getId(), id));
         }
+        try {
+            List<Book> similarBooks = recommendationService.findSimilarBooks(id, 5);
+            model.addAttribute("similarBooks", similarBooks);
+        } catch (Exception e) {
+            model.addAttribute("similarBooks", Collections.emptyList());
+        }
+
         return "book";
     }
 
