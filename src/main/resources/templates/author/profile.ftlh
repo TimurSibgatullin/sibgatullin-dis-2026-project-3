@@ -1,9 +1,12 @@
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Автор: ${author.nickname}">
-    <h2>${author.nickname}</h2>
-    <p>${author.bio!}</p>
+    <h2>Профиль автора ${author.nickname!}</h2>
+    <p>
+        <h4>Об авторе:</h4>
+        <label>${author.bio!}</label>
+    </p>
 
-    <h3>Книги автора</h3>
+    <h3>Книги автора:</h3>
     <#if authorBooks?size == 0>
         <p>У этого автора пока нет книг.</p>
     <#else>
@@ -13,15 +16,17 @@
             </#list>
         </ul>
     </#if>
-
-    <h3>Комментарии автора</h3>
-    <#if authorComments?size == 0>
-        <p>Автор пока не оставлял комментариев.</p>
-    <#else>
-        <ul>
-            <#list authorComments as c>
-                <li>К книге <a href="${currentContext}/book?id=${c.book.id}">${c.book.title}</a>: ${c.text}</li>
-            </#list>
-        </ul>
+    <#if author.account??>
+        <h3>Комментарии автора:</h3>
+        <#if authorComments?size == 0>
+            <p>Автор пока не оставлял комментариев.</p>
+        <#else>
+            <ul>
+                <#list authorComments as comment>
+                    <li>Комментарий к: <a href="${currentContext}/book?id=${comment.book.id}">${comment.book.title}</a>
+                        от ${comment.createdAtFormatted} — ${comment.text}</li>
+                </#list>
+            </ul>
+        </#if>
     </#if>
 </@base.layout>

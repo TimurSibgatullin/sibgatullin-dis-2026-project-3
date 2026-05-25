@@ -4,10 +4,10 @@
         <a href="${currentContext}/home">Главная</a>
         <#if user??>
             | <a href="${currentContext}/profile">Профиль</a>
-            <#if user.isAuthor>
+            <#if user.author>
                 | <a href="${currentContext}/upload">Загрузить книгу</a>
             </#if>
-            <#if user.isAdmin>
+            <#if user.admin>
                 | <a href="${currentContext}/admin">Админ-панель</a>
             </#if>
             | <a href="${currentContext}/account/settings">Настройки</a>

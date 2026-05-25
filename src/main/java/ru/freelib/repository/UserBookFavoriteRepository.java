@@ -19,4 +19,8 @@ public interface UserBookFavoriteRepository extends JpaRepository<UserBookFavori
     int deleteByUserIdAndBookId(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
     List<UserBookFavorite> findByUserIdOrderByAddedAtDesc(Long userId);
+
+    @Modifying
+    @Query("DELETE FROM UserBookFavorite f WHERE f.user.id = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

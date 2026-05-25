@@ -1,51 +1,41 @@
-<#ftl encoding="UTF-8">
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Регистрация">
-<!DOCTYPE html>
-<html lang="ru">
-<body>
-<h2>Регистрация</h2>
-<div style="color:red">${errormessage!}</div>
-<form action="${currentContext}/auth/register" method="post">
-    <p>
-        <div>
-            <label>Введите логин</label>
-            <input type="text" name="login" required>
-        </div>
-    </p>
-    <p>
-        <div>
-            <label>Введите пароль</label >
+    <h2>Регистрация</h2>
+    <form action="${currentContext}/auth/register" method="post">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
+
+        <p>
+            <label>Логин</label><br>
+            <input type="text" name="login" value="${form.login!}" required>
+        </p>
+        <p>
+            <label>Пароль (16+ симв., строчная, прописная, цифра)</label><br>
             <input type="password" name="password" required>
-        </div>
-    </p>
-    <p>
-        <div>
-            <label>Повторите пароль</label>
+        </p>
+        <p>
+            <label>Повторите пароль</label><br>
             <input type="password" name="passwordConfirm" required>
-        </div>
-    </p>
-    <p>
-        <div>
-            <label>Выберите роль</label>
-            <select id="role" name="role">
-                <option value="reader" selected>Читатель</option>
-                <option value="author">Автор</option>
+        </p>
+        <p>
+            <label>Выберите роль</label><br>
+            <select name="role">
+                <option value="READER">Читатель</option>
+                <option value="AUTHOR">Автор</option>
             </select>
-        </div>
+        </p>
+        <p>
+            <label>Никнейм (публичное имя)</label><br>
+            <input type="text" name="nickname" value="${form.nickname!}" required>
+        </p>
+        <p>
+            <label>Расскажите о себе</label><br>
+            <textarea name="description" rows="5" cols="40">${form.description!}</textarea>
+        </p>
+        <button type="submit" class="usual-button">Зарегистрироваться</button>
+    </form>
+
+    <p style="margin-top: 15px;">
+        Уже есть аккаунт? <a href="${currentContext}/auth/login">Войти</a>
     </p>
-    <p>
-    <div>
-        <label>Введите никнейм</label>
-        <input type="text" name="nickname" required>
-    </div>
-    </p>
-    <p>
-        <label>Расскажите о себе</label>
-        <textarea type="text" name="description" rows="5" cols="40"></textarea>
-    </p>
-    <input type="submit" value="Зарегистрироваться">
-</form>
-</body>
-</html>
 </@base.layout>

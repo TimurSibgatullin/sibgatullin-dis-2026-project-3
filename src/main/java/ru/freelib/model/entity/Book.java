@@ -1,5 +1,6 @@
 package ru.freelib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -29,6 +30,7 @@ public class Book {
     @Column(nullable = false)
     private Long views = 0L;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
@@ -42,8 +44,9 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private Set<Comment> comments;
 
+    @JsonIgnore
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Column(name = "embedding_vector", columnDefinition = "vector(768)")
+    @Column(name = "embedding_vector", columnDefinition = "vector(1024)")
     private float[] embeddingVector;
 
     @Column(name = "created_at", updatable = false)

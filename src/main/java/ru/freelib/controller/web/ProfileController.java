@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.freelib.model.entity.Author;
+import ru.freelib.model.entity.UserAccount;
 import ru.freelib.model.form.ProfileEditForm;
 import ru.freelib.security.CustomUserDetails;
 import ru.freelib.service.*;
@@ -24,6 +25,7 @@ public class ProfileController {
     private final CommentService commentService;
     private final FavoriteService favoriteService;
     private final IdempotencyService idempotencyService;
+    private final AuthorService authorService;
 
     @GetMapping("/profile")
     public String myProfile(Model model, @AuthenticationPrincipal CustomUserDetails user) {
@@ -77,11 +79,20 @@ public class ProfileController {
 
     @GetMapping("/user")
     public String publicProfile(@RequestParam Long id, Model model) {
-        var account = userAccountService.getById(id);
-        var author = account.getAuthor();
-        model.addAttribute("anotherUser", account);
-        model.addAttribute("myBooks", bookService.findByAuthorId(author.getId()));
-        model.addAttribute("myComments", commentService.getByUserId(id));
-        return "public-profile";
+        try {
+            var account = userAccountService.getById(id);
+            var author = account.getAuthor();
+            model.addAttribute("anotherUser", account);
+            model.addAttribute("authorBooks", bookService.findByAuthorId(author.getId()));
+            model.addAttribute("userComments",
+                    commentService.getByUserId(id));
+            boolean isAuthorOrAdmin = account.getRole() == UserAccount.Role.ROLE_AUTHOR
+                    || account.getRole() == UserAccount.Role.ROLE_ADMIN;
+            model.addAttribute("isAuthorOrAdmin", isAuthorOrAdmin);
+            return "public-profile";
+        } catch (jakarta.persistence.EntityNotFoundException e) {
+            model.addAttribute("error", "Пользователь не найден или был удалён");
+            return "error/404";
+        }
     }
 }

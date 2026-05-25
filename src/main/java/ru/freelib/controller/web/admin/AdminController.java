@@ -2,8 +2,8 @@ package ru.freelib.controller.web.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.freelib.model.entity.Author;
 import ru.freelib.service.AuthorService;
 import ru.freelib.service.BookService;
@@ -22,14 +22,12 @@ public class AdminController {
     }
 
     @PostMapping
-    public String lookupAuthor(@RequestParam String author, Model model) {
+    public String lookupAuthor(@RequestParam String author, RedirectAttributes redirectAttributes) {
         Author found = authorService.findByNickname(author);
         if (found == null) {
-            model.addAttribute("errormessage", "Автор не найден!");
-            return "admin/panel";
+            redirectAttributes.addFlashAttribute("errormessage", "Автор не найден!");
+            return "redirect:/admin";
         }
-        model.addAttribute("author", found);
-        model.addAttribute("myBooks", bookService.findByAuthorId(found.getId()));
-        return "admin/author-edit";
+        return "redirect:/admin/edit-author?id=" + found.getId();
     }
 }

@@ -1,5 +1,6 @@
 package ru.freelib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;
@@ -17,6 +18,7 @@ public class Genre {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "genres")
     private Set<Book> books;
 }

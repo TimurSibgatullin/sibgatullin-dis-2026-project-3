@@ -13,6 +13,8 @@ import ru.freelib.service.BookService;
 import ru.freelib.service.CommentService;
 import ru.freelib.service.FavoriteService;
 
+import java.util.Collections;
+
 @Controller
 @RequestMapping("/author")
 @RequiredArgsConstructor
@@ -27,18 +29,27 @@ public class AuthorController {
     public String viewAuthor(@PathVariable Long id,
                              Model model,
                              @AuthenticationPrincipal CustomUserDetails currentUser) {
-        var author = authorService.getById(id);
-        model.addAttribute("author", author);
-        model.addAttribute("authorBooks", bookService.findByAuthorId(id));
-        model.addAttribute("authorComments", commentService.getByUserId(id));
+        try {
+            var author = authorService.getByIdWithAccount(id);
+            model.addAttribute("author", author);
+            model.addAttribute("authorBooks", bookService.findByAuthorId(id));
+            if (author.getAccount() != null) {
+                model.addAttribute("authorComments",
+                        commentService.getByUserId(author.getAccount().getId()));
+            } else {
+                model.addAttribute("authorComments", Collections.emptyList());
+            }
 
-        if (currentUser != null) {
-            var favBookIds = favoriteService.getFavorites(currentUser.getId()).stream()
-                    .map(f -> f.getBook().getId())
-                    .toList();
-            model.addAttribute("favBookIds", favBookIds);
+            if (currentUser != null) {
+                var favBookIds = favoriteService.getFavorites(currentUser.getId()).stream()
+                        .map(f -> f.getBook().getId())
+                        .toList();
+                model.addAttribute("favBookIds", favBookIds);
+            }
+            return "author/profile";
+        } catch (jakarta.persistence.EntityNotFoundException e) {
+            model.addAttribute("error", "Автор не найден или был удалён");
+            return "error/404";
         }
-
-        return "author/profile";
     }
 }

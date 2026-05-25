@@ -68,11 +68,12 @@ public class UserAccountController {
                                 HttpServletResponse response,
                                 @AuthenticationPrincipal CustomUserDetails user,
                                 RedirectAttributes redirectAttributes) {
-
         if (!idempotencyService.validateAndConsume(session, token)) {
             redirectAttributes.addFlashAttribute("error", "Повторная отправка формы");
             return "redirect:/account/settings";
         }
+
+        session.invalidate();
 
         userAccountService.deleteAccount(user.getId());
         authService.logout(response);

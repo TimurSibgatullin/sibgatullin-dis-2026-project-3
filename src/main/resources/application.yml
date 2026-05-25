@@ -30,10 +30,9 @@ spring:
     settings:
       template_exception_handler: rethrow
       url_escaping_charset: UTF-8
-    expose-request-attributes: true
     expose-session-attributes: false
   cache:
-    type: simple
+    type: redis
   data:
     redis:
       host: localhost
@@ -44,6 +43,11 @@ spring:
     baseline-on-migrate: true
   mvc:
     static-path-pattern: /static/**
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 100MB
 
 app:
   jwt:
@@ -51,15 +55,21 @@ app:
     access-ttl: 3600000
     refresh-ttl: 604800000
   ai:
-    base-url: "http://localhost:11434/v1"
-    model-gen: "llama3:8b"
-    model-embed: "nomic-embed-text"
+    gen-url: "http://localhost:11434/v1"
+    model-gen: "qwen3.5:4B"
+    embed-url: "http://localhost:11435/v1"
+    model-embed: "qwen3-embedding:0.6B"
     timeout-sec: 30
+  minio:
+    endpoint: "http://localhost:9000"
+    access-key: "freelib_admin"
+    secret-key: "qwerty12345678"
+    bucket-name: "books"
 
 logging:
-  level:
-    com.zaxxer.hikari: DEBUG
-    org.postgresql: DEBUG
-    org.flywaydb: DEBUG
+#  level:
+#    com.zaxxer.hikari: DEBUG
+#    org.postgresql: DEBUG
+#    org.flywaydb: DEBUG
   file:
     name: logs/freelib.log

@@ -1,45 +1,52 @@
-<!DOCTYPE html>
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Профиль автора">
-    <html lang="ru">
-    <body>
-    <h2>Вы зашли в профиль автора: ${author.nickname}</h2>
-    <h3>Вы можете изменить данные в полях:</h3>
-    <div style="color:red">${errormessage!}</div>
-    <form action="${currentContext}/admin/edit-author" method="post">
+    <h2>Профиль автора: ${form.nickname}</h2>
+    <h3>Редактирование данных:</h3>
+    <form action="${currentContext}/admin/edit-author?id=${form.id}" method="post">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
         <p>
-            <label>Имя</label>
-            <input type="text" name="nickname" value="${author.nickname}" required>
+            <label>Никнейм</label><br>
+            <input type="text" name="nickname" value="${form.nickname}" required>
         </p>
         <p>
-            <label>О авторе</label>
-            <textarea type="text" name="description" required rows="5" cols="40">${author.description!}</textarea>
+            <label>Об авторе</label><br>
+            <textarea name="bio" rows="5" cols="40">${form.bio!}</textarea>
         </p>
-        <input type="submit" value="Изменить">
-        <input type="hidden" name="id" value="${author.id}">
+        <button type="submit" class="usual-button">Изменить</button>
     </form>
-    <form action="${currentContext}/admin/edit-author" method="post">
-        <p>
-            <input type="hidden" name="id" value="${author.id}">
-            <input type="hidden" name="delete" value="true">
-            <input type="submit" value="Удалить">
-        </p>
-    </form>
-    <h3>Ваши книги:</h3>
-    <#if myBooks?size == 0>
-        <p>Вы пока не добавили ни одной книги.</p>
-    <#else>
-        <#list myBooks as book>
-            <p>
-                <form method="get" action="${currentContext}/admin/edit-book">
-                    <input type="hidden" name="id" value="${book.id}" required>
-                    <button type="submit" class="usual-button">${book.title}</button>
-                </form>
-            </p>
-        </#list>
-    </#if>
-    <a href="${currentContext}/admin/upload?id=${author.id}">Добавить новую книгу</a>
+    <p>
+    <form action="${currentContext}/admin/edit-author?id=${form.id}" method="post"
+          onsubmit="return confirm('Удалить этого автора и все его книги?');">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
+        <input type="hidden" name="delete" value="true">
+        <button type="submit" class="usual-button" style="border-color:#b00020; color:#b00020;">
+            Удалить автора
+        </button>
+    </form></p>
 
-    </body>
-    </html>
+    <hr style="margin: 20px 0;">
+
+
+    <h3>Книги автора:</h3>
+    <#if myBooks?size == 0>
+        <p>У этого автора пока нет книг.</p>
+    <#else>
+        <ul>
+            <#list myBooks as book>
+                <li>
+                    <a href="${currentContext}/admin/edit-book?id=${book.id}">${book.title}</a>
+                </li>
+            </#list>
+        </ul>
+    </#if>
+    <p><a href="${currentContext}/admin/upload?id=${form.id}" class="usual-button" style="margin-bottom: 15px; display: inline-block;">
+        Добавить новую книгу
+    </a></p>
+
+    <p style="margin-top: 20px;">
+        <a href="${currentContext}/admin/all-authors">Назад к списку авторов</a> |
+        <a href="${currentContext}/admin">В админ-панель</a>
+    </p>
 </@base.layout>

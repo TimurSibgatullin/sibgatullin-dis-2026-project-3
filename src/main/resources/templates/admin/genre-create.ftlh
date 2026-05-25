@@ -2,12 +2,7 @@
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Создание жанра">
 <h2>Создание жанра</h2>
-
-<#if error??>
-    <div class="alert error">${error}</div>
-</#if>
-
-<form method="post" action="${currentContext}/admin/genres/create">
+<form method="post" action="${currentContext}/admin/create-genre">
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
     <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
 

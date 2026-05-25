@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,7 +70,7 @@ public class GlobalExceptionHandler {
         ModelAndView mav = new ModelAndView("error/" + view);
         mav.addObject("errorMessage", message);
         mav.addObject("statusCode", status.value());
-        mav.addObject("currentContext", ""); // Добавляем вручную для error-страниц
+        mav.addObject("currentContext", "");
         mav.setStatus(status);
         return mav;
     }
@@ -77,8 +78,17 @@ public class GlobalExceptionHandler {
     private boolean isAjax(HttpServletRequest req) {
         String xhr = req.getHeader("X-Requested-With");
         String accept = req.getHeader("Accept");
-        // Считаем AJAX только если явно просят JSON и НЕ просят HTML
         return "XMLHttpRequest".equals(xhr) ||
                 (accept != null && accept.contains("application/json") && !accept.contains("text/html"));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public Object handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest req) {
+        log.warn("Method not supported: {} {}", req.getMethod(), req.getRequestURI());
+        if (isAjax(req)) {
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                    .body(Map.of("error", "Метод не поддерживается"));
+        }
+        return new ModelAndView("redirect:/home");
     }
 }

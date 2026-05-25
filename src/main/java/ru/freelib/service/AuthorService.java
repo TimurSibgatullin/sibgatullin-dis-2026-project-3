@@ -66,4 +66,9 @@ public class AuthorService {
     public Author findByNickname(String nickname) {
         return authorRepository.findByNickname(nickname).orElse(null);
     }
+
+    public Author getByIdWithAccount(Long id) {
+        return authorRepository.findByIdWithAccount(id)
+                .orElseThrow(() -> new EntityNotFoundException("Автор не найден: " + id));
+    }
 }

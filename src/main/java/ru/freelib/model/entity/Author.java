@@ -1,5 +1,6 @@
 package ru.freelib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -21,9 +22,11 @@ public class Author {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserAccount account;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Book> books;
 

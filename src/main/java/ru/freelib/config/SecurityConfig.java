@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import ru.freelib.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -27,16 +28,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/**", "/auth/refresh")
-                )
+                .csrf(csrf -> {
+                    CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+                    requestHandler.setCsrfRequestAttributeName("_csrf");
+
+                    csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .csrfTokenRequestHandler(requestHandler)
+                            .ignoringRequestMatchers("/api/**", "/auth/refresh");
+                })
+
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/home", "/book/**", "/books/**", "/user/**", "/download", "/static/**", "/error/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/auth/**", "/home", "/book/**", "/books/**", "/user/**",
+                                "/download", "/static/**", "/error/**", "/v3/api-docs/**", "/swagger-ui/**",
+                                "/author/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/upload/**", "/edit-my-book/**", "/profile-edit/**").hasAnyRole("AUTHOR", "ADMIN")
-                        .requestMatchers("/profile/**", "/comment/**", "/favorite/**").authenticated()
+                        .requestMatchers("/upload/**", "/edit-my-book/**", "/api/v1/ai/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/profile/**", "/profile-edit/**", "/comment/**", "/favorite/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex

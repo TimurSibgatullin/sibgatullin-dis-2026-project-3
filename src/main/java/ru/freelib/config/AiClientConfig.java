@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @ConfigurationProperties(prefix = "app.ai")
 public class AiClientConfig {
-    private String baseUrl;
+    private String genUrl;
+    private String embedUrl;
     private String modelGen;
     private String modelEmbed;
     private int timeoutSec;

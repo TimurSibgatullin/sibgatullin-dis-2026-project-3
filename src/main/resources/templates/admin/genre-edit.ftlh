@@ -1,29 +1,32 @@
-<!DOCTYPE html>
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Изменение жанра">
-    <html lang="ru">
-    <body>
-    <h2>Измените данные в полях</h2>
-    <div style="color:red">${errormessage!}</div>
-    <form action="${currentContext}/admin/edit-genre" method="post">
+    <h2>Изменение жанра: ${form.name}</h2>
+    <form method="post" action="${currentContext}/admin/edit-genre?id=${form.id}">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
+
         <p>
-            <label>Название</label>
-            <input type="text" name="name" value="${genre.name}" required>
+            <label for="name">Название:</label><br>
+            <input type="text" id="name" name="name" value="${form.name!}" required>
         </p>
         <p>
-            <label>Описание</label>
-            <textarea id="text" name="description" rows="5" cols="40" required>${genre.description}</textarea>
+            <label for="description">Описание:</label><br>
+            <textarea id="description" name="description" rows="5" cols="40">${form.description!}</textarea>
         </p>
-        <input type="submit" value="Изменить">
-        <input type="hidden" name="id" value="${genre.id}">
+        <button type="submit" class="usual-button">Изменить</button>
     </form>
-    <form action="${currentContext}/admin/edit-genre" method="post">
-        <p>
-            <input type="hidden" name="id" value="${genre.id}">
-            <input type="hidden" name="delete" value="true">
-            <input type="submit" value="Удалить">
-        </p>
+
+    <form method="post" action="${currentContext}/admin/edit-genre?id=${form.id}" style="margin-top: 15px;">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
+        <input type="hidden" name="delete" value="true">
+        <button type="submit" class="usual-button" style="border-color:#b00020; color:#b00020;"
+                onclick="return confirm('Удалить этот жанр?');">
+            Удалить жанр
+        </button>
     </form>
-    </body>
-    </html>
+
+    <p style="margin-top: 15px;">
+        <a href="${currentContext}/admin/all-genres">Назад к списку жанров</a>
+    </p>
 </@base.layout>

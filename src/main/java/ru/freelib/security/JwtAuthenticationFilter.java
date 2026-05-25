@@ -7,16 +7,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.freelib.config.JwtConfig;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtProvider;
     private final JwtConfig jwtConfig;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -33,16 +33,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refresh = getCookieValue(request, "REFRESH_TOKEN");
 
         if (access != null && jwtProvider.validateToken(access, "ACCESS")) {
-            setAuthentication(access);
+            setAuthentication(access, response);
         }
         else if (refresh != null && jwtProvider.validateToken(refresh, "REFRESH")) {
             String login = jwtProvider.getLogin(refresh);
-            List<String> roles = jwtProvider.getRoles(refresh);
-            String newAccess = jwtProvider.createAccessToken(login,
-                    roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-
+            String newAccess = jwtProvider.createAccessToken(login, userDetailsService.loadUserByUsername(login).getAuthorities());
             setCookie(response, "ACCESS_TOKEN", newAccess, jwtConfig.getAccessTtl());
-            setAuthentication(newAccess);
+            setAuthentication(newAccess, response);
         }
         else {
             SecurityContextHolder.clearContext();
@@ -52,11 +49,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private void setAuthentication(String token) {
+    private void setAuthentication(String token, HttpServletResponse response) {
         String login = jwtProvider.getLogin(token);
-        List<String> roles = jwtProvider.getRoles(token);
-        var authorities = roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        var auth = new UsernamePasswordAuthenticationToken(login, null, authorities);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+
+        var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 

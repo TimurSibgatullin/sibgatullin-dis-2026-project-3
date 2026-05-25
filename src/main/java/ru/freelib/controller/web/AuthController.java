@@ -79,7 +79,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
+    @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
     public String logout(HttpServletResponse response) {
         authService.logout(response);
         return "redirect:/home";

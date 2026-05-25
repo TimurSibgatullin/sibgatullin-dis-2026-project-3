@@ -9,12 +9,10 @@ import ru.freelib.config.AiClientConfig;
 import ru.freelib.exception.AiServiceException;
 import ru.freelib.model.dto.ai.AiChatRequest;
 import ru.freelib.model.dto.ai.AiChatResponse;
-import ru.freelib.model.entity.Genre;
 import ru.freelib.util.PromptSanitizer;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -47,26 +45,28 @@ public class AiDescriptionService {
                         "Автор: %s\n" +
                         "Жанры: %s\n" +
                         "</BOOK_DATA>\n" +
-                        "Верни только текст описания (3-5 предложений).",
+                        "Верни только текст описания (5-10 предложений).",
                 safeTitle, safeAuthor, safeGenres
         );
         return callChatApi(userPrompt);
     }
 
-    public String improveDescription(String existingDesc, String title, String author) {
+    public String improveDescription(String existingDesc, String title, String author, List<String> genres) {
         String safeDesc = PromptSanitizer.sanitizeInput(existingDesc, 2000);
         String safeTitle = PromptSanitizer.sanitizeInput(title, 150);
         String safeAuthor = PromptSanitizer.sanitizeInput(author, 100);
+        String safeGenres = PromptSanitizer.sanitizeInput(String.join(", ", genres), 300);
 
         String userPrompt = String.format(
                 "Оптимизируй описание книги. Улучши стиль, сохрани смысл, убери воду. На основе следующих данных:\n" +
                         "<BOOK_DATA>\n" +
                         "Название: %s\n" +
                         "Автор: %s\n" +
+                        "Жанры %s\n" +
                         "Текущее описание: %s\n" +
                         "</BOOK_DATA>\n" +
-                        "Верни только текст описания (3-5 предложений).",
-                safeTitle, safeAuthor, safeDesc
+                        "Верни только текст описания (5-10 предложений).",
+                safeTitle, safeAuthor, safeGenres, safeDesc
         );
 
         return callChatApi(userPrompt);
@@ -87,7 +87,7 @@ public class AiDescriptionService {
             String json = mapper.writeValueAsString(request);
             RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
             Request httpRequest = new Request.Builder()
-                    .url(aiConfig.getBaseUrl() + "/chat/completions")
+                    .url(aiConfig.getGenUrl() + "/chat/completions")
                     .post(body)
                     .build();
 

@@ -14,9 +14,9 @@
 
 <#macro flashMessages>
     <#if success??>
-        <div class="alert success">${success}</div>
+        <p><div style="color:green; margin-bottom: 10px;">${success}</div></p>
     </#if>
     <#if error??>
-        <div class="alert error">${error}</div>
+        <p><div style="color:red; margin-bottom: 10px;">${error}</div></p>
     </#if>
 </#macro>

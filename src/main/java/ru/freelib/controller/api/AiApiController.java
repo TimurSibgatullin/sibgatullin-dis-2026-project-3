@@ -36,8 +36,9 @@ public class AiApiController {
             String title = (String) payload.get("title");
             String author = (String) payload.get("author");
             @SuppressWarnings("unchecked")
+            List<String> genres = (List<String>) payload.get("genres");
 
-            String description = aiDescriptionService.improveDescription(existingDesc, title, author);
+            String description = aiDescriptionService.improveDescription(existingDesc, title, author, genres);
             return ResponseEntity.ok(Map.of("description", description));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

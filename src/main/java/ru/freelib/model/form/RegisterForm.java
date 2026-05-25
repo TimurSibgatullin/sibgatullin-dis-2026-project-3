@@ -12,8 +12,8 @@ public class RegisterForm {
     private String login;
 
     @NotBlank(message = "Пароль обязателен")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$",
-            message = "Пароль: 9+ символов, строчная, прописная, цифра")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{16,}$",
+            message = "Пароль: 16+ символов, строчная, прописная, цифра")
     private String password;
 
     @NotBlank(message = "Подтвердите пароль")

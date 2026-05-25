@@ -19,15 +19,15 @@
         </p>
     </#if>
     <a href="${currentContext}/download?id=${book.id}">Скачать книгу</a>
-
+    <p>
     <h3>Комментарии</h3>
     <ul>
         <#list comments as c>
-            <li><b>${c.createdAt?string["dd.MM.yyyy HH:mm"]} —
-                    <a href="${currentContext}/author/${c.user.author.id}">${c.user.author.nickname}</a>:</b> ${c.text}</li>
+            <li><b>${c.createdAtFormatted} —
+                    <a href="${currentContext}/user?id=${c.user.id}">${c.user.author.nickname}</a>:</b> ${c.text}</li>
         </#list>
     </ul>
-
+    </p>
     <#if user??>
         <form method="post" action="${currentContext}/comment/add">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">

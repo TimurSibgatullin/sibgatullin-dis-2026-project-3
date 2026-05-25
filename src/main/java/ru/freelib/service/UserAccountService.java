@@ -2,13 +2,18 @@ package ru.freelib.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.freelib.model.entity.UserAccount;
 import ru.freelib.model.form.ProfileEditForm;
+import ru.freelib.repository.AuthorRepository;
+import ru.freelib.repository.CommentRepository;
 import ru.freelib.repository.UserAccountRepository;
+import ru.freelib.repository.UserBookFavoriteRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -16,6 +21,9 @@ public class UserAccountService {
 
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthorRepository authorRepository;
+    private final CommentRepository commentRepository;
+    private final UserBookFavoriteRepository favoriteRepository;
 
     public UserAccount getById(Long id) {
         return userAccountRepository.findById(id)
@@ -43,8 +51,27 @@ public class UserAccountService {
     @Transactional
     public void deleteAccount(Long id) {
         if (!userAccountRepository.existsById(id)) {
-            throw new EntityNotFoundException("Аккаунт не найден для удаления");
+            throw new EntityNotFoundException("Аккаунт не найден: " + id);
         }
-        userAccountRepository.deleteById(id);
+
+        favoriteRepository.deleteAllByUserId(id);
+        commentRepository.deleteAllByUserId(id);
+
+        UserAccount account = userAccountRepository.findById(id).orElseThrow();
+
+        if (account.getAuthor() != null) {
+            var author = account.getAuthor();
+            account.setAuthor(null);
+            userAccountRepository.saveAndFlush(account);
+            authorRepository.delete(author);
+        }
+
+        userAccountRepository.delete(account);
+        userAccountRepository.flush();
+
+        boolean stillExists = userAccountRepository.existsById(id);
+        if (stillExists) {
+            throw new IllegalStateException("Не удалось удалить аккаунт из БД");
+        }
     }
 }

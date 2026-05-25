@@ -91,24 +91,6 @@ public class BookService {
         return bookRepository.findByAuthorId(authorId);
     }
 
-    public String generateAiDescription(String title, String authorName, List<String> genres) {
-        return aiDescriptionService.generateDescription(title, authorName, genres);
-    }
-
-    @Transactional
-    public String improveDescription(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
-
-        String improved = aiDescriptionService.improveDescription(
-                book.getDescription(), book.getTitle(), book.getAuthor().getNickname());
-
-        book.setDescription(improved);
-        bookRepository.save(book);
-        scheduleEmbeddingUpdate(book);
-        return improved;
-    }
-
     private Set<Genre> resolveGenres(List<Long> genreIds) {
         if (genreIds == null || genreIds.isEmpty()) {
             throw new IllegalArgumentException("Необходимо выбрать хотя бы один жанр");

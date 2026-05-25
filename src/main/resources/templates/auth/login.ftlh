@@ -1,39 +1,21 @@
-<!DOCTYPE html>
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Вход">
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Freelib вход</title>
-    <meta name="description" content="Freelib вход">
-</head>
-<body>
-<h2>Введите логин/пароль</h2>
-<div style="color:red">${errormessage!}</div>
-<form action="${currentContext}/auth/login" method="post">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-    <p>
-    <div>
-        <label>Логин</label>
-        <input type="text" name="login">
-    </div>
+    <h2>Вход в систему</h2>
+    <form action="${currentContext}/auth/login" method="post">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <p>
+            <label>Логин</label><br>
+            <input type="text" name="login" value="${form.login!}" required>
+        </p>
+        <p>
+            <label>Пароль</label><br>
+            <input type="password" name="password" required>
+        </p>
+        <button type="submit" class="usual-button">Войти</button>
+    </form>
+
+    <p style="margin-top: 15px;">
+        Ещё не зарегистрированы?
+        <a href="${currentContext}/auth/register">Создать аккаунт</a>
     </p>
-    <p>
-    <div>
-        <label>Пароль</label>
-        <input type="password" name="password">
-    </div>
-    </p>
-    <input type="submit" value="Вход">
-</form>
-<form action="${currentContext}/auth/register" method="get">
-    <p>
-    <div>
-        <label>Ещё не зарегистрированы?</label>
-        <input type="submit" value="Зарегистрироваться">
-    </div>
-    </p>
-</form>
-</body>
-</html>
 </@base.layout>

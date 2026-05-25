@@ -4,7 +4,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import ru.freelib.model.entity.UserAccount;
 
-@Converter(autoApply = true)
+@Converter()
 public class RoleAttributeConverter implements AttributeConverter<UserAccount.Role, String> {
 
     @Override

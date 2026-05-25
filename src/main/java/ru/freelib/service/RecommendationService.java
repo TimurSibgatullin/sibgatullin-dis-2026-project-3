@@ -41,7 +41,7 @@ public class RecommendationService {
             String json = mapper.writeValueAsString(request);
             RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
             Request httpRequest = new Request.Builder()
-                    .url(aiConfig.getBaseUrl() + "/embeddings")
+                    .url(aiConfig.getEmbedUrl() + "/embeddings")
                     .post(body)
                     .build();
 

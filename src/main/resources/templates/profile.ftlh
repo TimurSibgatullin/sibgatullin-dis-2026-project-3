@@ -7,13 +7,18 @@
         <p>Вы пока не добавили ни одной книги в избранное.</p>
     <#else>
         <ul>
-            <#list myFavoriteBooks as book>
-                <li><a href="${currentContext}/book?id=${book.id}">${book.title}</a></li>
+            <#list myFavoriteBooks as favorite>
+                <li>
+                    <a href="${currentContext}/book?id=${favorite.book.id}">${favorite.book.title}</a>
+                    <#if favorite.addedAt??>
+                        <small style="color: #888;">— добавлено ${favorite.addedAtFormatted}</small>
+                    </#if>
+                </li>
             </#list>
         </ul>
-    <p>
     </#if>
-    <#if user.role == "author" || user.role == "admin">
+    <p>
+    <#if user.author || user.admin>
         <h3>Ваши книги:</h3>
         <#if myBooks?size == 0>
             <p>Вы пока не добавили ни одной книги.</p>
@@ -34,7 +39,7 @@
         <#else>
             <ul>
                 <#list myComments as comment>
-                    <li>Комментарий к: <a href="${currentContext}/book?id=${comment.book.id}">${comment.book.title}</a> от ${comment.created_at} — ${comment.text}</li>
+                    <li>Комментарий к: <a href="${currentContext}/book?id=${comment.book.id}">${comment.book.title}</a> от ${comment.createdAtFormatted} — ${comment.text}</li>
                 </#list>
             </ul>
         </#if>

@@ -5,7 +5,7 @@
     <div class="container">
 
         <#if user??>
-            <h2>Добро пожаловать, ${nickname!}.</h2>
+            <h2>Добро пожаловать, ${user.nickname!}.</h2>
         </#if>
 
         <h2>Выберите жанр, чтобы начать читать:</h2>
@@ -26,7 +26,7 @@
                 <#list books as book>
                     <li>
                         <a href="${currentContext}/book?id=${book.id}">${book.title}</a> —
-                        <a href="${currentContext}/user?id=${book.author.id}">${book.author.nickname}</a>
+                        <a href="${currentContext}/author/${book.author.id}">${book.author.nickname}</a>
                     </li>
                 </#list>
             </#if>

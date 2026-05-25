@@ -1,8 +1,7 @@
 package ru.freelib.controller.web;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +16,9 @@ import ru.freelib.service.FavoriteService;
 import ru.freelib.service.GenreService;
 import ru.freelib.util.FileStorageUtil;
 
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 
 @Controller
 @RequiredArgsConstructor
@@ -51,19 +50,18 @@ public class BookController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadBook(@RequestParam Long id) {
+    public ResponseEntity<InputStreamResource> downloadBook(@RequestParam Long id) {
         var book = bookService.getById(id);
-        Path file = fileStorage.getUploadDir().resolve(book.getFilePath());
-        Resource resource = new FileSystemResource(file);
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
+        InputStream stream = fileStorage.getInputStream(book.getFilePath());
+
         String encodedName = URLEncoder.encode(
                 book.getTitle() + book.getFilePath().substring(book.getFilePath().lastIndexOf('.')),
-                StandardCharsets.UTF_8).replace("+", "%20");
+                StandardCharsets.UTF_8
+        ).replace("+", "%20");
+
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedName + "\"")
-                .body(resource);
+                .body(new InputStreamResource(stream));
     }
 }

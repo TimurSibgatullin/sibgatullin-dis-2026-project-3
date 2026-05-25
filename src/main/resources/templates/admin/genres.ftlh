@@ -1,20 +1,24 @@
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Все жанры">
-    <!DOCTYPE html>
-    <html lang="ru">
     <h2>Список всех жанров</h2>
-    <label>Нажмите чтобы редактировать</label>
     <#if genres?size == 0>
         <p>Жанров пока нет.</p>
     <#else>
-        <#list genres as genre>
-            <p>
-                <form method="get" action="${currentContext}/admin/edit-genre">
-                    <input type="hidden" name="id" value="${genre.id}" required>
-                    <button type="submit" class="usual-button">${genre.name}</button>
-                </form>
-            </p>
-        </#list>
+        <ul>
+            <#list genres as genre>
+                <li>
+                    <form method="get" action="${currentContext}/admin/edit-genre" style="display:inline;">
+                        <input type="hidden" name="id" value="${genre.id}">
+                        <button type="submit" class="link-button">${genre.name}</button>
+                    </form>
+                    — ${genre.description!}
+                </li>
+            </#list>
+        </ul>
     </#if>
-    </html>
+
+    <p style="margin-top: 15px;">
+        <a href="${currentContext}/admin/create-genre">Создать новый жанр</a> |
+        <a href="${currentContext}/admin">Назад в админ-панель</a>
+    </p>
 </@base.layout>

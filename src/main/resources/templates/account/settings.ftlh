@@ -11,7 +11,7 @@
             <input type="password" name="currentPassword" required>
         </p>
         <p>
-            <label>Новый пароль (9+ симв., строчная, прописная, цифра)</label><br>
+            <label>Новый пароль (16+ симв., строчная, прописная, цифра)</label><br>
             <input type="password" name="newPassword" required>
         </p>
         <p>

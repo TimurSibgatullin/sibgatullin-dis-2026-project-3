@@ -1,5 +1,6 @@
 package ru.freelib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.freelib.converter.RoleAttributeConverter;
@@ -21,17 +22,19 @@ public class UserAccount {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Convert(converter = RoleAttributeConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
     private Author author;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Comment> comments;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("addedAt DESC")
     private List<UserBookFavorite> favoriteRecords;

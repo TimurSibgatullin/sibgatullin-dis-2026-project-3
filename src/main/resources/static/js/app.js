@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerText = btn.dataset.originalText;
-                }, 5000);
+                }, 1000);
             }
         });
     });
