@@ -1,7 +1,13 @@
 package ru.freelib.exception;
 
-public class NotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class NotFoundException extends FreeLibException {
     public NotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
+    }
+
+    public NotFoundException(String entityName, Object id) {
+        super(entityName + " не найден(а): " + id, HttpStatus.NOT_FOUND);
     }
 }
