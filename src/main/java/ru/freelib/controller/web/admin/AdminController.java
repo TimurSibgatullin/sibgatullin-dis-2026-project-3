@@ -22,12 +22,7 @@ public class AdminController {
     }
 
     @PostMapping
-    public String lookupAuthor(@RequestParam String author, RedirectAttributes redirectAttributes) {
-        Author found = authorService.findByNickname(author);
-        if (found == null) {
-            redirectAttributes.addFlashAttribute("errormessage", "Автор не найден!");
-            return "redirect:/admin";
-        }
-        return "redirect:/admin/edit-author?id=" + found.getId();
+    public String lookupAuthor(@RequestParam Author author, RedirectAttributes redirectAttributes) {
+        return "redirect:/admin/edit-author?id=" + author.getId();
     }
 }

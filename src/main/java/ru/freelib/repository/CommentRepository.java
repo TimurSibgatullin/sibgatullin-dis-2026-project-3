@@ -10,8 +10,4 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByBookIdOrderByCreatedAtDesc(Long bookId);
     List<Comment> findByUserIdOrderByCreatedAtDesc(Long userId);
-
-    @Modifying
-    @Query("DELETE FROM Comment c WHERE c.user.id = :userId")
-    void deleteAllByUserId(@Param("userId") Long userId);
 }

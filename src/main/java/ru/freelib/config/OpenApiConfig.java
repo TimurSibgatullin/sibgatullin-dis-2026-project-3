@@ -15,11 +15,10 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         final String schemeName = "cookieAuth";
         return new OpenAPI()
-//                .info(new Info()
-//                        .title("FreeLib API")
-//                        .version("1.0.0")
-//                        .description("REST API семестрового проекта. Аутентификация через HttpOnly JWT-куки.")
-//                        .contact(new Contact().name("TimurSibgatullin").email("TiRSibgatullin@kpfu.ru")))
+                .info(new Info()
+                        .title("FreeLib API")
+                        .version("1.0.0")
+                        .description("REST API семестрового проекта. Аутентификация через HttpOnly JWT-куки."))
                 .addSecurityItem(new SecurityRequirement().addList(schemeName))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(schemeName,

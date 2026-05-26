@@ -33,10 +33,18 @@ public class AuthService {
 
     @Transactional
     public void register(RegisterForm form) {
-        if (userAccountRepo.existsByLogin(form.getLogin())) throw new IllegalArgumentException("Логин занят");
-        if (authorRepo.existsByNickname(form.getNickname())) throw new IllegalArgumentException("Никнейм занят");
+        if (userAccountRepo.existsByLogin(form.getLogin())) {
+            throw new IllegalArgumentException("Логин занят");
+        }
+        if (authorRepo.existsByNickname(form.getNickname())) {
+            throw new IllegalArgumentException("Никнейм занят");
+        }
 
-        Author author = Author.builder().nickname(form.getNickname()).bio(form.getDescription()).createdAt(LocalDateTime.now()).build();
+        Author author = Author.builder()
+                .nickname(form.getNickname())
+                .bio(form.getDescription())
+                .createdAt(LocalDateTime.now())
+                .build();
         author = authorRepo.save(author);
 
         UserAccount account = UserAccount.builder()
