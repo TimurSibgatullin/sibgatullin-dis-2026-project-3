@@ -1,9 +1,9 @@
 package ru.freelib.converter;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.Author;
 import ru.freelib.service.AuthorService;
 
@@ -21,7 +21,7 @@ public class StringToAuthorConverter implements Converter<String, Author> {
 
         Author author = authorService.findByNickname(source.trim());
         if (author == null) {
-            throw new EntityNotFoundException("Автор не найден: " + source);
+            throw new NotFoundException("Автор", source);
         }
 
         return author;

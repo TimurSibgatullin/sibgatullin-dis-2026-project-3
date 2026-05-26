@@ -16,32 +16,24 @@ public class AiApiController {
 
     @PostMapping("/generate-description")
     public ResponseEntity<Map<String, String>> generateDescription(@RequestBody Map<String, Object> payload) {
-        try {
-            String title = (String) payload.get("title");
-            String author = (String) payload.get("author");
-            @SuppressWarnings("unchecked")
-            List<String> genres = (List<String>) payload.get("genres");
+        String title = (String) payload.get("title");
+        String author = (String) payload.get("author");
+        @SuppressWarnings("unchecked")
+        List<String> genres = (List<String>) payload.get("genres");
 
-            String description = aiDescriptionService.generateDescription(title, author, genres);
-            return ResponseEntity.ok(Map.of("description", description));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String description = aiDescriptionService.generateDescription(title, author, genres);
+        return ResponseEntity.ok(Map.of("description", description));
     }
 
     @PostMapping("/improve-description")
     public ResponseEntity<Map<String, String>> improveDescription(@RequestBody Map<String, Object> payload) {
-        try {
-            String existingDesc = (String) payload.get("existingDesc");
-            String title = (String) payload.get("title");
-            String author = (String) payload.get("author");
-            @SuppressWarnings("unchecked")
-            List<String> genres = (List<String>) payload.get("genres");
+        String existingDesc = (String) payload.get("existingDesc");
+        String title = (String) payload.get("title");
+        String author = (String) payload.get("author");
+        @SuppressWarnings("unchecked")
+        List<String> genres = (List<String>) payload.get("genres");
 
-            String description = aiDescriptionService.improveDescription(existingDesc, title, author, genres);
-            return ResponseEntity.ok(Map.of("description", description));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String description = aiDescriptionService.improveDescription(existingDesc, title, author, genres);
+        return ResponseEntity.ok(Map.of("description", description));
     }
 }

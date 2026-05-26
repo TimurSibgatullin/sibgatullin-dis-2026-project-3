@@ -1,11 +1,12 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.freelib.exception.BusinessException;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.UserAccount;
 import ru.freelib.model.form.ProfileEditForm;
 import ru.freelib.repository.AuthorRepository;
@@ -27,7 +28,7 @@ public class UserAccountService {
 
     public UserAccount getById(Long id) {
         return userAccountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Аккаунт не найден"));
+                .orElseThrow(() -> new NotFoundException("Аккаунт не найден", id));
     }
 
     @Transactional
@@ -42,7 +43,7 @@ public class UserAccountService {
     public void changePassword(Long id, String oldPassword, String newPassword) {
         UserAccount account = getById(id);
         if (!passwordEncoder.matches(oldPassword, account.getPasswordHash())) {
-            throw new IllegalArgumentException("Текущий пароль неверен");
+            throw new BusinessException("Текущий пароль неверен");
         }
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         userAccountRepository.save(account);
@@ -51,7 +52,7 @@ public class UserAccountService {
     @Transactional
     public void deleteAccount(Long id) {
         if (!userAccountRepository.existsById(id)) {
-            throw new EntityNotFoundException("Аккаунт не найден: " + id);
+            throw new NotFoundException("Аккаунт", id);
         }
 
         UserAccount account = userAccountRepository.findById(id).orElseThrow();

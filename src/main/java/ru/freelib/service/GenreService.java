@@ -1,6 +1,5 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -8,6 +7,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.freelib.exception.DuplicateException;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.Genre;
 import ru.freelib.model.form.GenreForm;
 import ru.freelib.repository.GenreRepository;
@@ -23,7 +24,7 @@ public class GenreService {
     @Cacheable(value = "genres", key = "#id")
     public Genre getById(Long id) {
         return genreRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Жанр не найден: " + id));
+                .orElseThrow(() -> new NotFoundException("Жанр", id));
     }
 
     @Cacheable(value = "genres", key = "'all'")
@@ -35,7 +36,7 @@ public class GenreService {
     @CacheEvict(value = "genres", key = "'all'")
     public Genre create(GenreForm form) {
         if (genreRepository.findByName(form.getName()).isPresent()) {
-            throw new IllegalArgumentException("Жанр с таким названием уже существует");
+            throw new DuplicateException("Жанр с таким названием уже существует");
         }
         Genre genre = Genre.builder()
                 .name(form.getName().trim())
@@ -58,7 +59,7 @@ public class GenreService {
     @CacheEvict(value = "genres", allEntries = true)
     public void delete(Long id) {
         if (!genreRepository.existsById(id)) {
-            throw new EntityNotFoundException("Жанр не найден для удаления: " + id);
+            throw new NotFoundException("Жанр", id);
         }
         genreRepository.deleteById(id);
     }

@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.freelib.config.JwtConfig;
+import ru.freelib.exception.DuplicateException;
 import ru.freelib.model.entity.Author;
 import ru.freelib.model.entity.UserAccount;
 import ru.freelib.model.form.LoginForm;
@@ -34,10 +35,10 @@ public class AuthService {
     @Transactional
     public void register(RegisterForm form) {
         if (userAccountRepo.existsByLogin(form.getLogin())) {
-            throw new IllegalArgumentException("Логин занят");
+            throw new DuplicateException("Логин занят");
         }
         if (authorRepo.existsByNickname(form.getNickname())) {
-            throw new IllegalArgumentException("Никнейм занят");
+            throw new DuplicateException("Никнейм занят");
         }
 
         Author author = Author.builder()

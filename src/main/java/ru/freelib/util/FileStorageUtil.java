@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import ru.freelib.config.MinioConfig;
+import ru.freelib.exception.BusinessException;
+import ru.freelib.exception.ExternalServiceException;
+import ru.freelib.exception.NotFoundException;
 
 import java.io.InputStream;
 import java.util.UUID;
@@ -20,7 +23,7 @@ public class FileStorageUtil {
 
     public String store(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Файл книги обязателен");
+            throw new BusinessException("Файл книги обязателен");
         }
 
         String original = file.getOriginalFilename();
@@ -42,7 +45,7 @@ public class FileStorageUtil {
             return objectName;
         } catch (Exception e) {
             log.error("Failed to upload file to MinIO", e);
-            throw new RuntimeException("Ошибка загрузки файла в хранилище", e);
+            throw new ExternalServiceException("Ошибка загрузки файла в хранилище", e);
         }
     }
 
@@ -71,7 +74,7 @@ public class FileStorageUtil {
             );
         } catch (Exception e) {
             log.error("Failed to get file from MinIO: {}", objectName, e);
-            throw new RuntimeException("Файл не найден в хранилище", e);
+            throw new NotFoundException("Файл", e);
         }
     }
 }

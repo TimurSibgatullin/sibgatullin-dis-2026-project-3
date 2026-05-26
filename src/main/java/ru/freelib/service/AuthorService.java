@@ -1,6 +1,5 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -8,6 +7,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.freelib.exception.DuplicateException;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.Author;
 import ru.freelib.model.form.AuthorForm;
 import ru.freelib.repository.AuthorRepository;
@@ -23,7 +24,7 @@ public class AuthorService {
     @Cacheable(value = "authors", key = "#id")
     public Author getById(Long id) {
         return authorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Автор не найден: " + id));
+                .orElseThrow(() -> new NotFoundException("Автор", id));
     }
 
     @Cacheable(value = "authors", key = "'all'")
@@ -35,7 +36,7 @@ public class AuthorService {
     @CacheEvict(value = "authors", key = "'all'")
     public Author create(AuthorForm form) {
         if (authorRepository.existsByNickname(form.getNickname())) {
-            throw new IllegalArgumentException("Автор с таким никнеймом уже существует");
+            throw new DuplicateException("Автор с таким никнеймом уже существует");
         }
         Author author = Author.builder()
                 .nickname(form.getNickname().trim())
@@ -58,7 +59,7 @@ public class AuthorService {
     @CacheEvict(value = "authors", allEntries = true)
     public void delete(Long id) {
         if (!authorRepository.existsById(id)) {
-            throw new EntityNotFoundException("Автор не найден для удаления: " + id);
+            throw new NotFoundException("Автор", id);
         }
         authorRepository.deleteById(id);
     }
@@ -69,6 +70,6 @@ public class AuthorService {
 
     public Author getByIdWithAccount(Long id) {
         return authorRepository.findByIdWithAccount(id)
-                .orElseThrow(() -> new EntityNotFoundException("Автор не найден: " + id));
+                .orElseThrow(() -> new NotFoundException("Автор", id));
     }
 }

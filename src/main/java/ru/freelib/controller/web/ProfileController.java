@@ -79,20 +79,16 @@ public class ProfileController {
 
     @GetMapping("/user")
     public String publicProfile(@RequestParam Long id, Model model) {
-        try {
-            var account = userAccountService.getById(id);
-            var author = account.getAuthor();
-            model.addAttribute("anotherUser", account);
-            model.addAttribute("authorBooks", bookService.findByAuthorId(author.getId()));
-            model.addAttribute("userComments",
-                    commentService.getByUserId(id));
-            boolean isAuthorOrAdmin = account.getRole() == UserAccount.Role.ROLE_AUTHOR
-                    || account.getRole() == UserAccount.Role.ROLE_ADMIN;
-            model.addAttribute("isAuthorOrAdmin", isAuthorOrAdmin);
-            return "public-profile";
-        } catch (jakarta.persistence.EntityNotFoundException e) {
-            model.addAttribute("error", "Пользователь не найден или был удалён");
-            return "error/404";
-        }
+        var account = userAccountService.getById(id);
+        var author = account.getAuthor();
+        model.addAttribute("anotherUser", account);
+        model.addAttribute("authorBooks", bookService.findByAuthorId(author.getId()));
+        model.addAttribute("userComments",
+                commentService.getByUserId(id));
+        boolean isAuthorOrAdmin = account.getRole() == UserAccount.Role.ROLE_AUTHOR
+                || account.getRole() == UserAccount.Role.ROLE_ADMIN;
+        model.addAttribute("isAuthorOrAdmin", isAuthorOrAdmin);
+        return "public-profile";
+
     }
 }

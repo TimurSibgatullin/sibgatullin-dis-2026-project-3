@@ -1,9 +1,9 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.Book;
 import ru.freelib.model.entity.UserAccount;
 import ru.freelib.model.entity.UserBookFavorite;
@@ -26,9 +26,9 @@ public class FavoriteService {
         if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) return;
 
         UserAccount user = userAccountRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь", userId));
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+                .orElseThrow(() -> new NotFoundException("Книга", bookId));
 
         favoriteRepository.save(UserBookFavorite.builder().user(user).book(book).build());
     }

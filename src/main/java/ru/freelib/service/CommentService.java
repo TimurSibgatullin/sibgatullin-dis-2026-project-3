@@ -1,9 +1,9 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.entity.Book;
 import ru.freelib.model.entity.Comment;
 import ru.freelib.model.entity.UserAccount;
@@ -25,9 +25,9 @@ public class CommentService {
     @Transactional
     public Comment addComment(CommentForm form, Long userId) {
         Book book = bookRepository.findById(form.getBookId())
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+                .orElseThrow(() -> new NotFoundException("Книга", form.getBookId()));
         UserAccount user = userAccountRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь" , userId));
 
         Comment comment = Comment.builder()
                 .book(book)

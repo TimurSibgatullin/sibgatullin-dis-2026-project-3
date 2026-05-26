@@ -29,27 +29,22 @@ public class AuthorController {
     public String viewAuthor(@PathVariable Long id,
                              Model model,
                              @AuthenticationPrincipal CustomUserDetails currentUser) {
-        try {
-            var author = authorService.getByIdWithAccount(id);
-            model.addAttribute("author", author);
-            model.addAttribute("authorBooks", bookService.findByAuthorId(id));
-            if (author.getAccount() != null) {
-                model.addAttribute("authorComments",
-                        commentService.getByUserId(author.getAccount().getId()));
-            } else {
-                model.addAttribute("authorComments", Collections.emptyList());
-            }
-
-            if (currentUser != null) {
-                var favBookIds = favoriteService.getFavorites(currentUser.getId()).stream()
-                        .map(f -> f.getBook().getId())
-                        .toList();
-                model.addAttribute("favBookIds", favBookIds);
-            }
-            return "author/profile";
-        } catch (jakarta.persistence.EntityNotFoundException e) {
-            model.addAttribute("error", "Автор не найден или был удалён");
-            return "error/404";
+        var author = authorService.getByIdWithAccount(id);
+        model.addAttribute("author", author);
+        model.addAttribute("authorBooks", bookService.findByAuthorId(id));
+        if (author.getAccount() != null) {
+            model.addAttribute("authorComments",
+                    commentService.getByUserId(author.getAccount().getId()));
+        } else {
+            model.addAttribute("authorComments", Collections.emptyList());
         }
+
+        if (currentUser != null) {
+            var favBookIds = favoriteService.getFavorites(currentUser.getId()).stream()
+                    .map(f -> f.getBook().getId())
+                    .toList();
+            model.addAttribute("favBookIds", favBookIds);
+        }
+        return "author/profile";
     }
 }

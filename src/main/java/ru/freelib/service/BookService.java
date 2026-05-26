@@ -1,6 +1,5 @@
 package ru.freelib.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,6 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.freelib.exception.BusinessException;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.dto.BookDto;
 import ru.freelib.model.entity.Author;
 import ru.freelib.model.entity.Book;
@@ -38,7 +39,7 @@ public class BookService {
     @Transactional
     public Book createBook(BookForm form, MultipartFile file, Long authorId) {
         Author author = authorRepository.findById(authorId)
-                .orElseThrow(() -> new EntityNotFoundException("Автор не найден"));
+                .orElseThrow(() -> new NotFoundException("Автор", authorId));
 
         Set<Genre> genres = resolveGenres(form.getGenreIds());
         String filePath = fileStorage.store(file);
@@ -60,7 +61,7 @@ public class BookService {
     @Transactional
     public Book updateBook(Long bookId, BookForm form, MultipartFile file) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+                .orElseThrow(() -> new NotFoundException("Книга", bookId));
 
         book.setTitle(form.getTitle().trim());
         book.setDescription(form.getDescription() != null ? form.getDescription().trim() : null);
@@ -79,14 +80,14 @@ public class BookService {
     @Transactional
     public void deleteBook(Long bookId) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+                .orElseThrow(() -> new NotFoundException("Книга", bookId));
         fileStorage.delete(book.getFilePath());
         bookRepository.delete(book);
     }
 
     public Book getById(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+                .orElseThrow(() -> new NotFoundException("Книга", id));
     }
 
     public List<Book> findByAuthorId(Long authorId) {
@@ -95,11 +96,11 @@ public class BookService {
 
     private Set<Genre> resolveGenres(List<Long> genreIds) {
         if (genreIds == null || genreIds.isEmpty()) {
-            throw new IllegalArgumentException("Необходимо выбрать хотя бы один жанр");
+            throw new BusinessException("Необходимо выбрать хотя бы один жанр");
         }
         Set<Genre> genres = genreRepository.findAllById(genreIds).stream().collect(Collectors.toSet());
         if (genres.size() != genreIds.size()) {
-            throw new IllegalArgumentException("Некоторые жанры не найдены");
+            throw new BusinessException("Некоторые жанры не найдены");
         }
         return genres;
     }

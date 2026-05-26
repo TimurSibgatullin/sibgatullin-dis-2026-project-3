@@ -1,7 +1,6 @@
 package ru.freelib.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.freelib.config.AiClientConfig;
 import ru.freelib.exception.AiServiceException;
+import ru.freelib.exception.NotFoundException;
 import ru.freelib.model.dto.ai.AiEmbeddingRequest;
 import ru.freelib.model.dto.ai.AiEmbeddingResponse;
 import ru.freelib.model.entity.Book;
@@ -69,7 +69,7 @@ public class RecommendationService {
 
     public List<Book> findSimilarBooks(Long excludeBookId, int limit) {
         Book sourceBook = bookRepository.findById(excludeBookId)
-                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена: " + excludeBookId));
+                .orElseThrow(() -> new NotFoundException("Книга", excludeBookId));
 
         float[] queryVector = sourceBook.getEmbeddingVector();
         if (queryVector == null) {
