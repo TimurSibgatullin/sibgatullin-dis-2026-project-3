@@ -2,7 +2,7 @@ function getCsrfHeader() {
     const tokenMeta = document.querySelector('meta[name="csrf-token"]');
     const paramMeta = document.querySelector('meta[name="csrf-param"]');
     if (!tokenMeta || !paramMeta) return {};
-    return { 'X-CSRF-TOKEN': tokenMeta.content };
+    return { 'X-XSRF-TOKEN': tokenMeta.content };
 }
 
 function collectFormData() {

@@ -3,10 +3,13 @@ package ru.freelib.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.freelib.model.dto.BookDto;
 import ru.freelib.model.entity.Author;
 import ru.freelib.model.entity.Book;
 import ru.freelib.model.entity.Genre;
@@ -29,7 +32,6 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
-    private final AiDescriptionService aiDescriptionService;
     private final RecommendationService recommendationService;
     private final FileStorageUtil fileStorage;
 
@@ -120,10 +122,34 @@ public class BookService {
     }
 
     public List<Book> getByGenreId(Long genreId) {
-        return bookRepository.findByDynamicFilters(null, null, List.of(genreId), null, null);
+        return bookRepository.findByGenresId(genreId);
     }
 
-    public List<Book> search(String title, Long authorId, List<Long> genreIds) {
-        return bookRepository.findByDynamicFilters(title, authorId, genreIds, null, null);
+    public Page<BookDto> search(String title, String authorName, List<Long> genreIds,
+                                Long minViews, Long maxViews, Pageable pageable) {
+        Page<Book> booksPage = bookRepository.findByDynamicFilters(title, authorName, genreIds, minViews, maxViews, pageable);
+
+        return booksPage.map(b -> new BookDto(
+                b.getId(),
+                b.getTitle(),
+                b.getDescription(),
+                b.getAuthor().getNickname(),
+                b.getGenres().stream().map(Genre::getName).toList(),
+                b.getViews(),
+                b.getFilePath()
+        ));
+    }
+
+    public List<Book> getLatestBooks() {
+        return bookRepository.findTop10ByOrderByCreatedAtDesc();
+    }
+
+    public List<Book> getPopularBooks() {
+        return bookRepository.findTop10BooksWithViewsAboveAverage();
+    }
+
+    @Transactional
+    public void incrementViews(Long bookId) {
+        bookRepository.incrementViews(bookId);
     }
 }

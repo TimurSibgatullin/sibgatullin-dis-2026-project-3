@@ -35,6 +35,7 @@ public class BookController {
     public String viewBook(@RequestParam Long id,
                            Model model,
                            @AuthenticationPrincipal CustomUserDetails user) {
+        bookService.incrementViews(id);
         model.addAttribute("book", bookService.getById(id));
         model.addAttribute("comments", commentService.getByBookId(id));
         if (user != null) {
@@ -46,7 +47,6 @@ public class BookController {
         } catch (Exception e) {
             model.addAttribute("similarBooks", Collections.emptyList());
         }
-
         return "book";
     }
 

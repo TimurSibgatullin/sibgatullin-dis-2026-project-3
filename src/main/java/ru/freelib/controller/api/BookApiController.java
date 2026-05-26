@@ -22,8 +22,10 @@ public class BookApiController {
     @GetMapping
     public ResponseEntity<Page<BookDto>> list(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Long authorId,
+            @RequestParam(required = false) String authorName,
             @RequestParam(required = false) List<Long> genreIds,
+            @RequestParam(required = false) Long minViews,
+            @RequestParam(required = false) Long maxViews,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
@@ -33,19 +35,7 @@ public class BookApiController {
                 ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(dir, parts[0]));
 
-        var books = bookService.search(title, authorId, genreIds);
-        List<BookDto> dtos = books.stream().map(b -> new BookDto(
-                b.getId(), b.getTitle(), b.getDescription(),
-                b.getAuthor().getNickname(),
-                b.getGenres().stream().map(g -> g.getName()).toList(),
-                b.getViews(), b.getFilePath()
-        )).toList();
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), dtos.size());
-        Page<BookDto> pageResult = new org.springframework.data.domain.PageImpl<>(
-                start > dtos.size() ? List.of() : dtos.subList(start, end),
-                pageable, dtos.size());
+        Page<BookDto> pageResult = bookService.search(title, authorName, genreIds, minViews, maxViews, pageable);
         return ResponseEntity.ok(pageResult);
     }
 }

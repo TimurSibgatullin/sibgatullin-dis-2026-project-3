@@ -2,6 +2,8 @@
     <h1>FreeLib</h1>
     <nav>
         <a href="${currentContext}/home">Главная</a>
+        | <a href="${currentContext}/genres">Жанры</a>
+        | <a href="${currentContext}/search">Поиск</a>
         <#if user??>
             | <a href="${currentContext}/profile">Профиль</a>
             <#if user.author>

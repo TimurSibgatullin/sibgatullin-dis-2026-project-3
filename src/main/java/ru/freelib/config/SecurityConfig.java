@@ -34,14 +34,14 @@ public class SecurityConfig {
 
                     csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                             .csrfTokenRequestHandler(requestHandler)
-                            .ignoringRequestMatchers("/api/**", "/auth/refresh");
+                            .ignoringRequestMatchers("/auth/refresh");
                 })
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/home", "/book/**", "/books/**", "/user/**",
                                 "/download", "/static/**", "/error/**", "/v3/api-docs/**", "/swagger-ui/**",
-                                "/author/**").permitAll()
+                                "/author/**", "/search", "/genres").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/upload/**", "/edit-my-book/**", "/api/v1/ai/**").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers("/profile/**", "/profile-edit/**", "/comment/**", "/favorite/**").authenticated()

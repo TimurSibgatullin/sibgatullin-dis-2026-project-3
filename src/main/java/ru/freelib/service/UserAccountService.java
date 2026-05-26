@@ -54,9 +54,6 @@ public class UserAccountService {
             throw new EntityNotFoundException("Аккаунт не найден: " + id);
         }
 
-        favoriteRepository.deleteAllByUserId(id);
-        commentRepository.deleteAllByUserId(id);
-
         UserAccount account = userAccountRepository.findById(id).orElseThrow();
 
         if (account.getAuthor() != null) {
