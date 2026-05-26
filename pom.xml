@@ -16,7 +16,7 @@
         <jakarta-version>3.1.0</jakarta-version>
         <okhttp-version>4.12.0</okhttp-version>
         <jjwt.version>0.12.5</jjwt.version>
-        <webmvc-ui-version>2.3.0</webmvc-ui-version>
+        <webmvc-ui-version>2.8.6</webmvc-ui-version>
         <lombok.version>1.18.30</lombok.version>
         <hibernate-version>6.6.0.Final</hibernate-version>
 	</properties>

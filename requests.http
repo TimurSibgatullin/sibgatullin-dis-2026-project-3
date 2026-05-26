@@ -23,7 +23,334 @@ Cookie: ACCESS_TOKEN=вставь_сюда_токен
 
 ### 6. AI: генерация описания
 POST http://localhost:8080/api/v1/ai/generate-description
+Content-Type: application/jsonф### ========================================
+### FreeLib API Tests
+### Семестровый проект: Spring MVC + REST API
+### ========================================
+
+### ========================================
+### 1. OpenAPI / Swagger Documentation
+### ========================================
+
+### 1.1. Swagger UI (интерактивная документация)
+GET http://localhost:8080/swagger-ui/index.html
+
+### 1.2. OpenAPI JSON-спецификация
+GET http://localhost:8080/v3/api-docs
+Accept: application/json
+
+### ========================================
+### 2. Аутентификация и регистрация
+### ========================================
+
+### 2.1. Регистрация нового пользователя
+POST http://localhost:8080/auth/register
+Content-Type: application/x-www-form-urlencoded
+
+login=testuser2026&password=TestPassword123&passwordConfirm=TestPassword123&role=author&nickname=TestAuthor2026&description=Тестовый+автор+для+API
+
+### 2.2. Логин (после выполнения скопируй куки ACCESS_TOKEN и XSRF-TOKEN)
+POST http://localhost:8080/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+login=admin&password=HulTi55iYB}g+yXU
+
+# После выполнения этого запроса:
+# 1. Скопируй значение куки ACCESS_TOKEN
+# 2. Скопируй значение куки XSRF-TOKEN
+# 3. Вставь их в переменные ниже
+
+### ========================================
+### Переменные для авторизованных запросов
+### ========================================
+@accessToken = вставь_сюда_ACCESS_TOKEN
+@xsrfToken = вставь_сюда_XSRF_TOKEN
+
+### ========================================
+### 3. Публичные страницы (не требуют авторизации)
+### ========================================
+
+### 3.1. Главная страница
+GET http://localhost:8080/home
+Accept: text/html
+
+### 3.2. Страница всех жанров
+GET http://localhost:8080/genres
+Accept: text/html
+
+### 3.3. Страница поиска книг
+GET http://localhost:8080/search
+Accept: text/html
+
+### 3.4. Просмотр конкретной книги
+GET http://localhost:8080/book?id=1
+Accept: text/html
+
+### 3.5. Книги по жанру
+GET http://localhost:8080/books?genreId=1
+Accept: text/html
+
+### 3.6. Профиль автора
+GET http://localhost:8080/author/1
+Accept: text/html
+
+### 3.7. Публичный профиль пользователя
+GET http://localhost:8080/user?id=1
+Accept: text/html
+
+### ========================================
+### 4. REST API: Поиск книг с пагинацией
+### ========================================
+
+### 4.1. Получить все книги (первая страница)
+GET http://localhost:8080/api/v1/books?page=0&size=10&sort=createdAt,desc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.2. Поиск по названию книги
+GET http://localhost:8080/api/v1/books?title=мастер&page=0&size=10&sort=title,asc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.3. Поиск по имени автора
+GET http://localhost:8080/api/v1/books?authorName=булгаков&page=0&size=10
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.4. Фильтрация по жанрам (можно указать несколько)
+GET http://localhost:8080/api/v1/books?genreIds=1&genreIds=3&page=0&size=10
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.5. Фильтрация по диапазону просмотров
+GET http://localhost:8080/api/v1/books?minViews=10&maxViews=100&page=0&size=10
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.6. Комбинированный поиск (все фильтры)
+GET http://localhost:8080/api/v1/books?title=война&authorName=толстой&genreIds=2&minViews=5&page=0&size=20&sort=views,desc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.7. Пагинация: вторая страница
+GET http://localhost:8080/api/v1/books?page=1&size=10&sort=createdAt,desc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.8. Сортировка по названию (возрастание)
+GET http://localhost:8080/api/v1/books?page=0&size=10&sort=title,asc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 4.9. Сортировка по популярности (убывание)
+GET http://localhost:8080/api/v1/books?page=0&size=10&sort=views,desc
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 5. REST API: AI-генерация описаний
+### ========================================
+
+### 5.1. Сгенерировать описание книги с нуля
+POST http://localhost:8080/api/v1/ai/generate-description
 Content-Type: application/json
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+{
+  "title": "Мастер и Маргарита",
+  "author": "Михаил Булгаков",
+  "genres": ["Роман", "Мистика", "Сатира"]
+}
+
+### 5.2. Улучшить существующее описание
+POST http://localhost:8080/api/v1/ai/improve-description
+Content-Type: application/json
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+{
+  "title": "Война и мир",
+  "author": "Лев Толстой",
+  "genres": ["Роман", "Историческая проза"],
+  "existingDesc": "Книга про войну 1812 года и судьбы людей."
+}
+
+### ========================================
+### 6. REST API: Избранное
+### ========================================
+
+### 6.1. Добавить книгу в избранное
+POST http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+### 6.2. Удалить книгу из избранного
+DELETE http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+### 6.3. Добавить несколько книг в избранное
+POST http://localhost:8080/api/v1/favorites/2
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+### 6.4. Удалить книгу из избранного
+DELETE http://localhost:8080/api/v1/favorites/2
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+### ========================================
+### 7. Тестирование обработки ошибок
+### ========================================
+
+### 7.1. Книга не найдена (404)
+GET http://localhost:8080/api/v1/books?page=0&size=10&title=несуществующая_книга_12345
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 7.2. Некорректный формат данных (400)
+GET http://localhost:8080/api/v1/books?minViews=abc&page=0&size=10
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 7.3. Доступ запрещён (403) - попытка доступа к AI без роли AUTHOR
+POST http://localhost:8080/api/v1/ai/generate-description
+Content-Type: application/json
+Cookie: ACCESS_TOKEN=токен_обычного_читателя
+X-XSRF-TOKEN: {{xsrfToken}}
+
+{
+  "title": "Тест",
+  "author": "Тест",
+  "genres": ["Тест"]
+}
+
+### 7.4. Неавторизованный доступ (401)
+GET http://localhost:8080/api/v1/favorites
+Accept: application/json
+
+### 7.5. Метод не поддерживается (405)
+PUT http://localhost:8080/api/v1/books/1
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 8. Веб-формы (для тестирования в браузере)
+### ========================================
+
+### 8.1. Страница входа
+GET http://localhost:8080/auth/login
+Accept: text/html
+
+### 8.2. Страница регистрации
+GET http://localhost:8080/auth/register
+Accept: text/html
+
+### 8.3. Профиль пользователя (требует авторизации)
+GET http://localhost:8080/profile
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 8.4. Редактирование профиля (требует авторизации)
+GET http://localhost:8080/profile-edit
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 8.5. Загрузка книги (требует роль AUTHOR или ADMIN)
+GET http://localhost:8080/upload
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 8.6. Настройки аккаунта (требует авторизации)
+GET http://localhost:8080/account/settings
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 9. Админ-панель (требует роль ADMIN)
+### ========================================
+
+### 9.1. Главная страница админки
+GET http://localhost:8080/admin
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.2. Список всех жанров
+GET http://localhost:8080/admin/all-genres
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.3. Создание нового жанра (страница)
+GET http://localhost:8080/admin/create-genre
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.4. Список всех авторов
+GET http://localhost:8080/admin/all-authors
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.5. Создание нового автора (страница)
+GET http://localhost:8080/admin/create-author
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.6. Редактирование автора
+GET http://localhost:8080/admin/edit-author?id=1
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 9.7. Редактирование книги
+GET http://localhost:8080/admin/edit-book?id=1
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 10. Скачивание файлов
+### ========================================
+
+### 10.1. Скачать книгу (требует авторизации или публичного доступа)
+GET http://localhost:8080/download?id=1
+Accept: application/octet-stream
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 11. Проверка кэширования (Redis)
+### ========================================
+
+### 11.1. Первый запрос к списку авторов (кэш пустой)
+GET http://localhost:8080/admin/all-authors
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 11.2. Повторный запрос (должен быть быстрее, данные из кэша)
+GET http://localhost:8080/admin/all-authors
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 11.3. Первый запрос к списку жанров (кэш пустой)
+GET http://localhost:8080/admin/all-genres
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 11.4. Повторный запрос (должен быть быстрее, данные из кэша)
+GET http://localhost:8080/admin/all-genres
+Accept: text/html
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### 12. Тестирование CSRF-защиты
+### ========================================
+
+### 12.1. POST-запрос БЕЗ CSRF-токена (должен вернуть 403)
+POST http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### 12.2. POST-запрос С корректным CSRF-токеном (должен succeed)
+POST http://localhost:8080/api/v1/favorites/1
+Cookie: ACCESS_TOKEN={{accessToken}}
+X-XSRF-TOKEN: {{xsrfToken}}
+
+### ========================================
+### 13. Logout
+### ========================================
+
+### 13.1. Выход из системы
+POST http://localhost:8080/auth/logout
+Cookie: ACCESS_TOKEN={{accessToken}}
+
+### ========================================
+### Конец тестов
+### ========================================
 Cookie: ACCESS_TOKEN=вставь_сюда_токен
 
 {
