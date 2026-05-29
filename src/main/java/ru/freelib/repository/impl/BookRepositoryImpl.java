@@ -26,7 +26,6 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                                            Long minViews, Long maxViews, Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        // 1. Основной запрос с JOIN FETCH для избежания LazyInitializationException
         CriteriaQuery<Book> cq = cb.createQuery(Book.class);
         Root<Book> book = cq.from(Book.class);
         book.fetch("author", JoinType.LEFT);
@@ -36,14 +35,12 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         cq.where(predicates.toArray(new Predicate[0]));
         cq.distinct(true);
 
-        // 2. Count-запрос для пагинации
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<Book> countRoot = countQuery.from(Book.class);
         List<Predicate> countPredicates = buildPredicates(cb, countRoot, titleFragment, authorName, genreIds, minViews, maxViews);
         countQuery.select(cb.countDistinct(countRoot)).where(countPredicates.toArray(new Predicate[0]));
         Long total = em.createQuery(countQuery).getSingleResult();
 
-        // 3. Применение пагинации и сортировки
         TypedQuery<Book> typedQuery = em.createQuery(cq);
         typedQuery.setFirstResult((int) pageable.getOffset());
         typedQuery.setMaxResults(pageable.getPageSize());
@@ -56,29 +53,20 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                                             List<Long> genreIds, Long minViews, Long maxViews) {
         List<Predicate> predicates = new ArrayList<>();
 
-        // Поиск по названию книги (LIKE, регистронезависимый)
         if (titleFragment != null && !titleFragment.isBlank()) {
             predicates.add(cb.like(cb.lower(book.get("title")), "%" + titleFragment.toLowerCase() + "%"));
         }
-
-        // Поиск по имени автора (LIKE, регистронезависимый)
         if (authorName != null && !authorName.isBlank()) {
             Join<Book, Author> authorJoin = book.join("author", JoinType.INNER);
             predicates.add(cb.like(cb.lower(authorJoin.get("nickname")), "%" + authorName.toLowerCase() + "%"));
         }
-
-        // Фильтрация по жанрам (IN)
         if (genreIds != null && !genreIds.isEmpty()) {
             Join<Book, Genre> genreJoin = book.join("genres", JoinType.INNER);
             predicates.add(genreJoin.get("id").in(genreIds));
         }
-
-        // Минимальное количество просмотров
         if (minViews != null) {
             predicates.add(cb.greaterThanOrEqualTo(book.get("views"), minViews));
         }
-
-        // Максимальное количество просмотров
         if (maxViews != null) {
             predicates.add(cb.lessThanOrEqualTo(book.get("views"), maxViews));
         }

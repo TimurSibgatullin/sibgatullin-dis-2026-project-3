@@ -45,9 +45,8 @@
         </#if>
         <form action="${currentContext}/profile-edit" method="get">
             <p>
-                <input type="submit" value="Редактировать профиль">
+                <button type="submit" class="usual-button">Редактировать профиль</button>
             </p>
         </form>
     </p>
-
 </@base.layout>

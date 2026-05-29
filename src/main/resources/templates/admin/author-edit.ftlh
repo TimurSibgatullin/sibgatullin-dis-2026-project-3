@@ -21,7 +21,7 @@
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
         <input type="hidden" name="idempotencyToken" value="${idempotencyToken}">
         <input type="hidden" name="delete" value="true">
-        <button type="submit" class="usual-button" style="border-color:#b00020; color:#b00020;">
+        <button type="submit" class="btn-danger" onclick="return confirm('Вы хотите удалить этого автора?');">
             Удалить автора
         </button>
     </form></p>

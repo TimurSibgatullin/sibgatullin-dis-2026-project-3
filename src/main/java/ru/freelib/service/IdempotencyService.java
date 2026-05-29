@@ -2,9 +2,10 @@ package ru.freelib.service;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class IdempotencyService {
@@ -16,8 +17,8 @@ public class IdempotencyService {
         String token = UUID.randomUUID().toString();
         Set<String> tokens = (Set<String>) session.getAttribute(SESSION_KEY);
         if (tokens == null) {
-            tokens = ConcurrentHashMap.newKeySet();
-            session.setAttribute(SESSION_KEY, tokens);
+            tokens = new HashSet<>();
+            session.setAttribute("idempotency_tokens", tokens);
         }
         tokens.add(token);
         return token;

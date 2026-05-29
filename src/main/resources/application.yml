@@ -12,9 +12,9 @@ spring:
   application:
     name: freelib
   datasource:
-    url: jdbc:postgresql://localhost:5432/freelib
-    username: postgres
-    password: "00000000"
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:freelib}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -28,6 +28,9 @@ spring:
     suffix: .ftlh
     template-loader-path: classpath:/templates/
     settings:
+      datetime_format: dd.MM.yyyy HH:mm
+      date_format: dd.MM.yyyy
+      time_format: HH:mm
       template_exception_handler: rethrow
       url_escaping_charset: UTF-8
     expose-session-attributes: false
@@ -35,8 +38,8 @@ spring:
     type: redis
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -51,25 +54,26 @@ spring:
 
 app:
   jwt:
-    secret: "LJsTDyItcf71Lh6QjBjPz91phMKT26tI0CBPHm9BslwS2NYvdjEiSBrjbZjZ5o5i"
-    access-ttl: 3600000
-    refresh-ttl: 604800000
+    secret: ${JWT_SECRET:change-me-in-production-min-32-chars-long!!}
+    access-ttl: ${JWT_ACCESS_TTL:3600000}
+    refresh-ttl: ${JWT_REFRESH_TTL:604800000}
   ai:
-    gen-url: "http://localhost:11434/v1"
-    model-gen: "qwen3.5:4B"
-    embed-url: "http://localhost:11435/v1"
-    model-embed: "qwen3-embedding:0.6B"
-    timeout-sec: 30
+    gen-url: ${AI_GEN_URL:http://localhost:11434/v1}
+    model-gen: ${AI_GEN_MODEL:qwen3.5:4B}
+    embed-url: ${AI_EMBED_URL:http://localhost:11435/v1}
+    model-embed: ${AI_EMBED_MODEL:qwen3-embedding:0.6B}
+    timeout-sec: ${AI_TIMEOUT_SEC:30}
   minio:
-    endpoint: "http://localhost:9000"
-    access-key: "freelib_admin"
-    secret-key: "qwerty12345678"
-    bucket-name: "books"
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:freelib_admin}
+    secret-key: ${MINIO_SECRET_KEY:freelib_secret}
+    bucket-name: ${MINIO_BUCKET:books}
+  app:
+    admin:
+      login: ${ADMIN_LOGIN:admin}
+      password: ${ADMIN_PASSWORD:changeme}
+      nickname: ${ADMIN_NICKNAME:admin}
 
 logging:
-#  level:
-#    com.zaxxer.hikari: DEBUG
-#    org.postgresql: DEBUG
-#    org.flywaydb: DEBUG
   file:
     name: logs/freelib.log

@@ -1,7 +1,6 @@
 package ru.freelib.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -18,7 +17,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("FreeLib API")
                         .version("1.0.0")
-                        .description("REST API семестрового проекта. Аутентификация через HttpOnly JWT-куки."))
+                        .description("REST API платформы FreeLib. Аутентификация через HttpOnly JWT-куки."))
                 .addSecurityItem(new SecurityRequirement().addList(schemeName))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(schemeName,

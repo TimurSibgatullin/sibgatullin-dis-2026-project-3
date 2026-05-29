@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     public Object handleFreeLibException(FreeLibException ex, HttpServletRequest req) {
         log.warn("Business exception [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage());
 
-        if (isAjax(req)) {
+        if (isApiRequest(req)) {
             return ResponseEntity.status(ex.getStatus())
                     .body(Map.of("error", ex.getMessage()));
         }
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Object handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
         log.warn("Validation failed: {}", ex.getMessage());
-        if (isAjax(req)) {
+        if (isApiRequest(req)) {
             Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                     .collect(Collectors.toMap(FieldError::getField,
                             FieldError::getDefaultMessage, (a, b) -> a));
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public Object handle404(NoHandlerFoundException ex, HttpServletRequest req) {
-        if (isAjax(req)) {
+        if (isApiRequest(req)) {
             return ResponseEntity.status(404).body(Map.of("error", "Endpoint not found"));
         }
         return errorView("404", "Страница не найдена", HttpStatus.NOT_FOUND);
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
     public Object handleMethodNotSupported(HttpRequestMethodNotSupportedException ex,
                                            HttpServletRequest req) {
         log.warn("Method not supported: {} {}", req.getMethod(), req.getRequestURI());
-        if (isAjax(req)) {
+        if (isApiRequest(req)) {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                     .body(Map.of("error", "Метод не поддерживается"));
         }
@@ -66,11 +66,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Object handleGeneral(Exception ex, HttpServletRequest req) {
         log.error("Unhandled exception at {}", req.getRequestURI(), ex);
-        if (isAjax(req)) {
+        if (isApiRequest(req)) {
             return ResponseEntity.status(500).body(Map.of("error", "Внутренняя ошибка сервера"));
         }
         return errorView("500", "Произошла непредвиденная ошибка",
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public Object handleTypeMismatch(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex,
+                                     HttpServletRequest req) {
+        log.warn("Type mismatch: parameter '{}' with value '{}' cannot be converted to {}",
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+
+        if (isApiRequest(req)) {
+            String message = String.format("Параметр '%s' должен быть типа %s, получено: '%s'",
+                    ex.getName(), ex.getRequiredType().getSimpleName(), ex.getValue());
+            return ResponseEntity.badRequest().body(Map.of("error", message));
+        }
+        return errorView("400", "Некорректный формат параметров запроса", HttpStatus.BAD_REQUEST);
     }
 
     private ModelAndView errorView(String view, String message, HttpStatus status) {
@@ -82,7 +96,7 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
-    private boolean isAjax(HttpServletRequest req) {
+    private boolean isApiRequest(HttpServletRequest req) {
         String xhr = req.getHeader("X-Requested-With");
         String accept = req.getHeader("Accept");
         return "XMLHttpRequest".equals(xhr) ||

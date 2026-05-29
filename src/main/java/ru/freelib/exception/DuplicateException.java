@@ -2,7 +2,7 @@ package ru.freelib.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class DuplicateException extends RuntimeException {
+public class DuplicateException extends BusinessException {
     public DuplicateException(String message) {
         super(message);
     }

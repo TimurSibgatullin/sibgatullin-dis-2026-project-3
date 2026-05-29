@@ -21,7 +21,6 @@ public class AuthorService {
 
     private final AuthorRepository authorRepository;
 
-    @Cacheable(value = "authors", key = "#id")
     public Author getById(Long id) {
         return authorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Автор", id));
@@ -64,12 +63,25 @@ public class AuthorService {
         authorRepository.deleteById(id);
     }
 
-    public Author findByNickname(String nickname) {
-        return authorRepository.findByNickname(nickname).orElse(null);
-    }
 
     public Author getByIdWithAccount(Long id) {
         return authorRepository.findByIdWithAccount(id)
                 .orElseThrow(() -> new NotFoundException("Автор", id));
+    }
+
+    public Author findByNicknamePartial(String nicknameFragment) {
+        if (nicknameFragment == null || nicknameFragment.isBlank()) {
+            return null;
+        }
+
+        var exact = authorRepository.findByNickname(nicknameFragment.trim());
+        if (exact.isPresent()) {
+            return exact.get();
+        }
+
+        return authorRepository.findByNicknameContainingIgnoreCase(nicknameFragment.trim())
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 }

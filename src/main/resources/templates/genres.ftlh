@@ -1,6 +1,5 @@
 <#import "layout/base.ftlh" as base>
 <@base.layout title="Все жанры">
-<div class="container">
     <h2>Жанры книг</h2>
     <p style="color: #666; margin-bottom: 20px;">
         Выберите жанр, чтобы увидеть доступные книги
@@ -24,5 +23,4 @@
             </#list>
         </ul>
     </#if>
-</div>
 </@base.layout>

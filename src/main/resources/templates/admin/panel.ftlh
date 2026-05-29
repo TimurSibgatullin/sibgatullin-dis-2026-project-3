@@ -1,7 +1,5 @@
 <#import "../layout/base.ftlh" as base>
 <@base.layout title="Админская панель">
-    <!DOCTYPE html>
-    <html lang="ru">
     <h2>Добро пожаловать домой, ${user.nickname!}.</h2>
     <p>
         <form method="get" action="${currentContext}/admin/create-genre">

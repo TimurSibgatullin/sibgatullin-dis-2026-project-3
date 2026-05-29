@@ -1,6 +1,7 @@
 package ru.freelib.controller.advice;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,25 +14,12 @@ import ru.freelib.service.UserAccountService;
 @RequiredArgsConstructor
 public class GlobalModelAdvice {
 
-    private final UserAccountService userAccountService;
-
     @ModelAttribute("currentContext")
     public String currentContext(HttpServletRequest request) {
         return request.getContextPath();
     }
 
-    @ModelAttribute("user")
-    public Object currentUser(@AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return null;
-
-        try {
-            userAccountService.getById(details.getId());
-            return new UserView(details);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
+    @Getter
     public static class UserView {
         private final Long id;
         private final String login;
@@ -50,29 +38,6 @@ public class GlobalModelAdvice {
             this.author = d.getUserAccount().getRole() == UserAccount.Role.ROLE_AUTHOR
                     || d.getUserAccount().getRole() == UserAccount.Role.ROLE_ADMIN;
             this.reader = d.getUserAccount().getRole() == UserAccount.Role.ROLE_READER;
-        }
-
-        public Long getId() {
-            return id;
-        }
-        public String getLogin() {
-            return login;
-        }
-        public String getNickname() {
-            return nickname;
-        }
-        public String getRole() {
-            return role;
-        }
-
-        public boolean isAdmin() {
-            return admin;
-        }
-        public boolean isAuthor() {
-            return author;
-        }
-        public boolean isReader() {
-            return reader;
         }
     }
 }

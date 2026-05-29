@@ -2,6 +2,7 @@ package ru.freelib.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,35 +24,39 @@ public class DataInitializer implements ApplicationRunner {
     private final AuthorRepository authorRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private static final String ADMIN_LOGIN = "admin";
-    private static final String ADMIN_PASSWORD = "HulTi55iYB}g+yXU";
-    private static final String ADMIN_NICKNAME = "admin";
+    @Value("${app.admin.login:admin}")
+    private String adminLogin;
+
+    @Value("${app.admin.password:changeme}")
+    private String adminPassword;
+
+    @Value("${app.admin.nickname:admin}")
+    private String adminNickname;
+
     private static final String ADMIN_BIO = "best admin";
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (userAccountRepository.existsByLogin(ADMIN_LOGIN)) {
-            log.info("Админ уже есть, скипаем", ADMIN_LOGIN);
+        if (userAccountRepository.existsByLogin(adminLogin)) {
+            log.info("Admin account already exists, skipping initialization");
             return;
         }
-
         Author adminAuthor = Author.builder()
-                .nickname(ADMIN_NICKNAME)
+                .nickname(adminNickname)
                 .bio(ADMIN_BIO)
                 .createdAt(LocalDateTime.now())
                 .build();
         adminAuthor = authorRepository.save(adminAuthor);
 
         UserAccount admin = UserAccount.builder()
-                .login(ADMIN_LOGIN)
-                .passwordHash(passwordEncoder.encode(ADMIN_PASSWORD))
+                .login(adminLogin)
+                .passwordHash(passwordEncoder.encode(adminPassword))
                 .role(UserAccount.Role.ROLE_ADMIN)
                 .author(adminAuthor)
                 .createdAt(LocalDateTime.now())
                 .build();
         userAccountRepository.save(admin);
-
-        log.info("Админ успешно создан");
+        log.info("Admin account created successfully");
     }
 }

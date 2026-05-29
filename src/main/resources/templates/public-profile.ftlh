@@ -4,7 +4,7 @@
     <h2>Профиль пользователя ${anotherUser.author.nickname!}</h2>
 
     <p>
-    <h4>О пользователе:</h4>
+    <h3>О пользователе:</h3>
     <label>${anotherUser.author.bio!}</label>
     </p>
 

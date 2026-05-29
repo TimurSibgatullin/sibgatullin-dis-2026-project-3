@@ -2,7 +2,7 @@
 <@base.layout title="Автор: ${author.nickname}">
     <h2>Профиль автора ${author.nickname!}</h2>
     <p>
-        <h4>Об авторе:</h4>
+        <h3>Об авторе:</h3>
         <label>${author.bio!}</label>
     </p>
 
